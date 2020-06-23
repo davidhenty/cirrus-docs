@@ -372,7 +372,7 @@ Example: job submission script for MPI parallel job
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A simple MPI job submission script to submit a job using 4 compute
-nodes and 36 MPI ranks per node for 20 minutes would look like:
+nodes and 128 MPI ranks per node for 20 minutes would look like:
 
 ::
 
@@ -387,10 +387,7 @@ nodes and 36 MPI ranks per node for 20 minutes would look like:
     #SBATCH --cpus-per-task=1
 
     # Replace [budget code] below with your budget code (e.g. t01)
-    #SBATCH --account=[budget code]
-    
-    # Load the default HPE MPI environment
-    module load mpt
+    #SBATCH --account=[budget code]             
 
     # Set the number of threads to 1
     #   This prevents any threaded system libraries from automatically 
@@ -398,7 +395,7 @@ nodes and 36 MPI ranks per node for 20 minutes would look like:
     export OMP_NUM_THREADS=1
 
     # Launch the parallel job
-    #   Using 144 MPI processes and 36 MPI processes per node
+    #   Using 144 MPI processes and 128 MPI processes per node
     #   srun picks up the distribution from the sbatch options
     srun ./my_mpi_executable.x
 
@@ -406,6 +403,13 @@ This will run your executable "my\_mpi\_executable.x" in parallel on 144
 MPI processes using 4 nodes (36 cores per node, i.e. not using hyper-threading). Slurm will
 allocate 4 nodes to your job and srun will place 36 MPI processes on each node
 (one per physical core).
+
+By default, srun will launch an MPI job that uses all of the cores you have requested via the "nodes" and "tasks-per-node" options. If you want to run fewer MPI processes than cores you will need to change the script.
+
+For example, to run this program on 128 MPI processes you have two options:
+
+ - set ``--tasks-per-node=32`` for an even distribution across nodes (this may not always be possible depending on the exact combination of nodes requested and MPI tasks required)
+ - set the number of MPI tasks explicitly using ``#SBATCH --ntasks=128``
 
 See above for a more detailed discussion of the different ``sbatch`` options
 
@@ -441,10 +445,7 @@ process. This results in all 36 physical cores per node being used.
     #SBATCH --cpus-per-task=18
 
     # Replace [budget code] below with your project code (e.g. t01)
-    #SBATCH --account=[budget code]
-    
-    # Load the default HPE MPI environment
-    module load mpt
+    #SBATCH --account=[budget code] 
 
     # Set the number of threads to 18
     #   There are 18 OpenMP threads per MPI process
@@ -495,10 +496,7 @@ process per core and specifies 4 hours maximum runtime per subjob:
     #SBATCH --array=0-55
 
     # Replace [budget code] below with your budget code (e.g. t01)
-    #SBATCH --account=[budget code]
-    
-    # Load the default HPE MPI environment
-    module load mpt
+    #SBATCH --account=[budget code]  
 
     # Set the number of threads to 1
     #   This prevents any threaded system libraries from automatically 
